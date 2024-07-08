@@ -206,6 +206,7 @@ eclipsetemurin11
 eclipsetemurin17
 eclipsetemurin21
 eclipsetemurin8
+ecosiabrowser
 egnyte
 egnytecore
 egnytewebedit
