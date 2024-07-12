@@ -370,6 +370,7 @@ keyaccess
 keybase
 keyboardmaestro
 keyshot12
+keyshot12_2024
 keystoreexplorer
 kimplusclientmodul
 klokki
@@ -396,6 +397,7 @@ logitechoptionsplus
 logitune
 logseq
 loom
+loupedeck
 lowprofile
 lsagent
 lucidlink
@@ -458,6 +460,7 @@ microsoftsharepointplugin
 microsoftskypeforbusiness
 microsoftskypeforbusinessremovaltool
 microsoftteams
+microsoftteams-rollingout
 microsoftteamsclassic
 microsoftteamsnew
 microsoftteamsreset
@@ -601,6 +604,7 @@ realvncserver
 realvncviewer
 rectangle
 redcanarymacmonitor
+redshift
 reflector4
 relatel
 remotedesktopmanagerenterprise
@@ -620,7 +624,9 @@ ringcentralmeetings
 ringcentralphone
 rocket
 rocketchat
+rodecentral
 rodeconnect
+rodeunify
 royaltsx
 rstudio
 rustdesk
@@ -767,7 +773,6 @@ visualstudiocode
 vivaldi
 vivi
 vlc
-vmwarefusion
 vmwarehorizonclient
 vncconnect
 vonagebusiness

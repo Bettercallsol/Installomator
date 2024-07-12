@@ -4,7 +4,7 @@ label="" # if no label is sent to the script, this will be used
 # Installomator
 #
 # Downloads and installs Applications
-# 2020-2021 Installomator
+# 2020-2024 Installomator
 #
 # inspired by the download scripts from William Smith and Sander Schram
 #
@@ -337,7 +337,7 @@ if [[ $(/usr/bin/arch) == "arm64" ]]; then
     fi
 fi
 VERSION="10.6beta"
-VERSIONDATE="2024-04-23"
+VERSIONDATE="2024-07-12"
 
 # MARK: Functions
 
@@ -1510,13 +1510,7 @@ longversion)
 valuesfromarguments)
     # no action necessary, all values should be provided in arguments
     ;;
-ecosiabrowser)
-    name="Ecosia Browser"
-    type="dmg"
- 	downloadURL=$(getJSONValue "$(curl -fsL 'https://ams.ecosia-browser.net/api/getLatest/144548e4-670e-46ef-be30-8d14ad305f19/mac/?update=false&channelprofilename=PROD&arch=x64')" '.LocationUri')
-    appNewVersion=$(getJSONValue "$(curl -fsL 'https://ams.ecosia-browser.net/api/getLatest/144548e4-670e-46ef-be30-8d14ad305f19/mac/?update=false&channelprofilename=PROD&arch=x64')" '.Version')
-    expectedTeamID="33YMRSYD2L"
-    ;;
+
 # label descriptions start here
 1password7)
     name="1Password 7"
@@ -3338,6 +3332,13 @@ eclipsetemurin8)
     expectedTeamID="JCDTMS22B4"
     appCustomVersion(){ if [ -f "/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Info.plist" ]; then echo "8u$(/usr/bin/defaults read "/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Info.plist" "CFBundleGetInfoString" | sed 's/Eclipse Temurin 1.8.0_//')"; fi }
     ;;
+ecosiabrowser)
+    name="Ecosia Browser"
+    type="dmg"
+ 	downloadURL=$(getJSONValue "$(curl -fsL 'https://ams.ecosia-browser.net/api/getLatest/144548e4-670e-46ef-be30-8d14ad305f19/mac/?update=false&channelprofilename=PROD&arch=x64')" '.LocationUri')
+    appNewVersion=$(getJSONValue "$(curl -fsL 'https://ams.ecosia-browser.net/api/getLatest/144548e4-670e-46ef-be30-8d14ad305f19/mac/?update=false&channelprofilename=PROD&arch=x64')" '.Version')
+    expectedTeamID="33YMRSYD2L"
+    ;;
 egnyte)
     # credit: #MoeMunyoki from MacAdmins Slack
     name="Egnyte Connect"
@@ -4854,6 +4855,13 @@ keyshot12)
     downloadURL="https://www.keyshot.com/download/357619/"
     appNewVersion="$( curl -v "$downloadURL" 2>&1 | grep location | cut -d '_' -f 4 | cut -d '.' -f 1-2 )"
     ;;
+keyshot12_2024)
+    name="KeyShot12"
+    type="pkg"
+    expectedTeamID="W7B24M74T3"
+    downloadURL="https://www.keyshot.com/download/370762/"
+    appNewVersion="$( curl -v "$downloadURL" 2>&1 | grep location | cut -d '_' -f 4 | cut -d '.' -f 1-2 )"
+    ;;
 keystoreexplorer)
     name="KeyStore Explorer"
     type="dmg"
@@ -5147,6 +5155,14 @@ loom)
     appNewVersion=$(curl -fs https://packages.loom.com/desktop-packages/latest-mac.yml | awk '/version/ {print $2}' )
     expectedTeamID="QGD2ZPXZZG"
     ;;
+loupedeck)
+    name="Loupedeck"
+    type="pkgInDmg"
+    #downloadURL="https://5145542.fs1.hubspotusercontent-na1.net/hubfs/5145542/Knowledge%20Base/LD%20Software%20Downloads/5.8.1/LoupedeckInstaller_5.8.1.18057.dmg"
+    downloadURL=$(curl -fs "https://loupedeck.com/downloads/" | xmllint --html --format - 2>/dev/null | grep -oE "https.*.dmg" | head -1)
+    appNewVersion=$(echo "$downloadURL" | sed -E 's/.*_([0-9.]*).dmg/\1/')
+    expectedTeamID="M24R8BN5BK"
+    ;;
 lowprofile)
     name="Low Profile"
     type="dmg"
@@ -5282,6 +5298,9 @@ macports)
     type="pkg"
     #buildVersion=$(uname -r | cut -d '.' -f 1)
     case $(uname -r | cut -d '.' -f 1) in
+        23)
+            archiveName="Sonoma.pkg"
+            ;;
         22)
             archiveName="Ventura.pkg"
             ;;
@@ -5301,6 +5320,8 @@ macports)
     downloadURL=$(downloadURLFromGit macports macports-base)
     appNewVersion=$(versionFromGit macports macports-base)
     appCustomVersion(){ if [ -x /opt/local/bin/port ]; then /opt/local/bin/port version | awk '{print $2}'; else "0"; fi }
+    updateTool="/opt/local/bin/port"
+    updateToolArguments="selfupdate"
     expectedTeamID="QTA3A3B7F3"
     ;;
 mactex)
@@ -5493,7 +5514,7 @@ microsoftdefenderatp)
     name="Microsoft Defender"
     type="pkg"
     downloadURL="https://go.microsoft.com/fwlink/?linkid=2097502"
-    appNewVersion=$(curl -fs https://macadmins.software/latest.xml | xpath '//latest/package[id="com.microsoft.defender.standalone"]/version' 2>/dev/null | sed -E 's/<version>([0-9.]*) .*/\1/')
+    appNewVersion=$(curl -fs https://raw.githubusercontent.com/MicrosoftDocs/defender-docs/public/defender-endpoint/mac-whatsnew.md | grep -m 1 -o "Build: [0-9\.]*" | awk '{print $2}')
     # No version number in download url
     expectedTeamID="UBF8T346G9"
     if [[ -x "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" && $INSTALL != "force" && $DEBUG -eq 0 ]]; then
@@ -5509,15 +5530,8 @@ microsoftedgeenterprisestable)
     name="Microsoft Edge"
     type="pkg"
     downloadURL="https://go.microsoft.com/fwlink/?linkid=2093504"
-    #appNewVersion=$(curl -fs https://macadmins.software/latest.xml | xpath '//latest/package[id="com.microsoft.edge"]/cfbundleversion' 2>/dev/null | sed -E 's/<cfbundleversion>([0-9.]*)<.*/\1/')
     appNewVersion=$(curl -fsIL "$downloadURL" | grep -i location: | grep -o "/MicrosoftEdge.*pkg" | sed -E 's/.*\/[a-zA-Z]*-([0-9.]*)\..*/\1/g')
     expectedTeamID="UBF8T346G9"
-    if [[ -x "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" && $INSTALL != "force" && $DEBUG -eq 0 ]]; then
-        printlog "Running msupdate --list"
-        "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --list
-    fi
-    updateTool="/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate"
-    updateToolArguments=( --install --apps EDGE01 )
     ;;
 microsoftexcel)
     name="Microsoft Excel"
@@ -5804,6 +5818,23 @@ microsoftskypeforbusinessremovaltool)
     downloadURL="https://office-reset.com"$(curl -fs https://office-reset.com/macadmins/ | grep -o -i "href.*\".*\"*SkypeForBusiness_Removal.*.pkg" | cut -d '"' -f2)
     expectedTeamID="QGS93ZLCU7"
     ;;
+microsoftteams-rollingout)
+    name="Microsoft Teams"
+    type="pkg"
+    packageID="com.microsoft.teams2"
+    # Fetch the latest version number from the Microsoft documentation page
+    appNewVersion=$(curl -s https://learn.microsoft.com/en-us/officeupdates/teams-app-versioning | awk '/<h4 id="mac-version-history">Mac version history<\/h4>/,/<\/table>/' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    downloadURL="https://statics.teams.cdn.office.net/production-osx/${appNewVersion}/MicrosoftTeams.pkg"
+    expectedTeamID="UBF8T346G9"
+    blockingProcesses=( Teams MSTeams "Microsoft Teams" "Microsoft Teams WebView" "Microsoft Teams WebView Helper" "Microsoft Teams Launcher" "Microsoft Teams (work preview)" "Microsoft Teams classic Helper" "com.microsoft.teams2.respawn")
+    # msupdate requires a PPPC profile pushed out from Jamf to work, https://github.com/pbowden-msft/MobileConfigs/tree/master/Jamf-MSUpdate
+    if [[ -x "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" && $INSTALL != "force" && $DEBUG -eq 0 ]]; then
+        printlog "Running msupdate --list"
+        "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --list
+    fi
+    updateTool="/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate"
+    updateToolArguments=( --install --apps TEAMS21 ) # --wait 600
+    ;;
 microsoftteamsclassic|\
 microsoftteams)
     name="Microsoft Teams classic"
@@ -5942,7 +5973,12 @@ mkuser)
     # appNewVersion="$(versionFromGit freegeek-pdx mkuser unfiltered)"
     # mkuser does not adhere to numbers and dots only for version numbers.
     # Pull request submitted to add an unfiltered option to versionFromGit
-    appNewVersion="$(curl -sLI "https://github.com/freegeek-pdx/mkuser/releases/latest" | grep -i "^location" | tr "/" "\n" | tail -1)"
+    appNewVersion="$(osascript -l 'JavaScript' -e 'run = argv => JSON.parse(argv[0]).tag_name' -- "$(curl -m 5 -sfL 'https://update.mkuser.sh' 2> /dev/null)" 2> /dev/null)"
+    appCustomVersion(){
+        if [ -e /usr/local/bin/mkuser ]; then
+            awk -F " |=|'" '($2 == "MKUSER_VERSION") { print $(NF-1); exit }' /usr/local/bin/mkuser
+        fi
+    }
     expectedTeamID="YRW6NUGA63"
     ;;
 mmhmm-desktop)
@@ -7029,6 +7065,15 @@ redcanarymacmonitor)
     appNewVersion="$(versionFromGit redcanaryco mac-monitor)"
     expectedTeamID="UA6JCQGF3F"
     ;;
+redshift)
+    name="redshift"
+    blockingProcesses=( "Cinema 4D" )
+    type="pkg"
+    packageID="com.redshift3d.redshift"
+    expectedTeamID="4ZY22YGXQG"
+    appNewVersion="$(curl -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15" -fs "https://support.maxon.net/hc/en-us/sections/4405730592274-Redshift" | grep "\-Redshift-" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" | sort -Vru | head -1)"
+    downloadURL=$(curl -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15" -fs "https://www.maxon.net/en/downloads" | grep -Eo -m 1 "https://installer.maxon.net/installer/rs/redshift_v${appNewVersion}_[a-f0-9]+_macos_metal.pkg")
+    ;;
 reflector4)
     name="Reflector 4"
     type="dmg"
@@ -7164,12 +7209,28 @@ rocketchat)
     expectedTeamID="S6UPZG7ZR3"
     blockingProcesses=( Rocket.Chat )
     ;;
+rodecentral)
+    name="RODE Central"
+    type="pkgInZip"
+    #packageID="com.rodecentral.installer"
+    downloadURL="https://update.rode.com/central/RODE_Central_MACOS.zip"
+    appNewVersion=$(curl -fs https://rode.com/en/release-notes/rode-central | xmllint --html --format - 2>/dev/null | tr '"' '\n' | sed 's/\&quot\;/\n/g' | grep -i -o "Version .*" | head -1 | cut -w -f2)
+    expectedTeamID="Z9T72PWTJA"
+    ;;
 rodeconnect)
     name="RODE Connect"
     type="pkgInZip"
     #packageID="com.rodeconnect.installer" #Versioned wrong as 0 in 1.1.0 pkg
-    downloadURL="https://cdn1.rode.com/rodeconnect_installer_mac.zip"
-    appNewVersion="$(curl -fs https://rode.com/software/rode-connect | grep -i -o ">Current version .*<" | cut -d " " -f4)"
+    downloadURL="https://update.rode.com/connect/RODE_Connect_MACOS.zip"
+    appNewVersion=$(curl -fs https://rode.com/en/release-notes/rode-connect | xmllint --html --format - 2>/dev/null | tr '"' '\n' | sed 's/\&quot\;/\n/g' | grep -i -o "Version .*" | head -1 | cut -w -f2)
+    expectedTeamID="Z9T72PWTJA"
+    ;;
+rodeunify)
+    name="RODE UNIFY"
+    type="pkgInZip"
+    #packageID="com.rodecentral.installer"
+    downloadURL="https://update.rode.com/unify_new/macos/RODE_UNIFY_MACOS.zip"
+    appNewVersion=$(curl -fs https://rode.com/en/release-notes/unify | xmllint --html --format - 2>/dev/null | tr '"' '\n' | sed 's/\&quot\;/\n/g' | grep -i -o "Version .*" | head -1 | cut -w -f2)
     expectedTeamID="Z9T72PWTJA"
     ;;
 royaltsx)
@@ -7447,11 +7508,7 @@ slab)
 slack)
     name="Slack"
     type="dmg"
-    if [[ $(arch) == i386 ]]; then
-       downloadURL="https://slack.com/ssb/download-osx"
-    elif [[ $(arch) == arm64 ]]; then
-       downloadURL="https://slack.com/ssb/download-osx-silicon"
-    fi
+    downloadURL="https://slack.com/ssb/download-osx-universal"
     appNewVersion=$( curl -fsIL "${downloadURL}" | grep -i "^location" | cut -d "/" -f7 )
     expectedTeamID="BQR82RBBHL"
     ;;
@@ -8387,17 +8444,13 @@ vivi)
     expectedTeamID="3NRCUJ8TJC"
     ;;
 vlc)
+    # VLC is a versatile, open-source multimedia player that supports a wide range of audio, video, and streaming formats across multiple platforms
     name="VLC"
     type="dmg"
-    latestVersionURL="https://get.videolan.org/vlc/last/macosx/"
-    archiveName=$(curl -sf "$latestVersionURL" | grep -ioE 'vlc-[0-9]+\.[0-9]+\.[0-9]+-universal\.dmg' | uniq)
-    downloadURL="${latestVersionURL}${archiveName}"
-    appNewVersion=$(awk -F'[-.]' '{print $2"."$3"."$4}' <<< "$archiveName")
-    versionKey="CFBundleShortVersionString"
+    appNewVersion=$(curl -s https://www.videolan.org/vlc/#download | xmllint --html --xpath "//script[contains(text(),'var PLATFORMS')]" - 2>/dev/null | grep -o '"osx":{"name":"macOS[^}]*' | grep -o '"latestVersion":"[^"]*' | sed 's/"latestVersion":"//')
+    downloadURL="https://get.videolan.org/vlc/$appNewVersion/macosx/vlc-$appNewVersion-universal.dmg"
     expectedTeamID="75GAHG3SZQ"
-    ;;
-
-vmwarefusion)
+    ;;vmwarefusion)
     name="VMware Fusion"
     type="dmg"
     downloadURL="https://www.vmware.com/go/getfusion"
