@@ -6,7 +6,7 @@
 pkgname="Installomator"
 identifier="com.scriptingosx.${pkgname}"
 install_location="/usr/local/Installomator/"
-signature="Developer ID Installer: Armin Briegel (JME5BW3F3R)"
+signature="Developer ID Installer: Ecosia GmbH (33YMRSYD2L)"
 
 # notarization
 dev_keychain_label="notary-scriptingosx"
